@@ -1,0 +1,26 @@
+#include "token.h"
+
+const char *tokennames[] = {
+	"Error		",
+	"Identifier	",
+	"Number		",
+	"String		",
+	"Assign		",
+	"Semicolon	",
+	"Colon		",
+	"Comma		",
+	"LeftParen	",
+	"RightParen	",
+	"Plus		",
+	"Minus		",
+	"Multiply	",
+	"Divide		",
+	"Raise		",
+	"LessThan	",
+	"Equal		",
+	"GreaterThan	",
+	"LTEqual	",
+	"GTEqual	",
+	"NotEqual	",
+	"EndOfFile	"
+};
