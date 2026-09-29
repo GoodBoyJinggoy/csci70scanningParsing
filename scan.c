@@ -10,7 +10,7 @@
 #define NEWLINE 	0 
 #define SPACE 		1
 #define TAB		2
-#define LETTER		3 // list, all letters 
+// #define LETTER		3 // list, all letters 
 #define LETTER_NOEXP	4 // list, all letters except e,E
 #define LETTER_EXP	5 // list, e,E
 #define DIGIT		6 // list, 0-9
@@ -29,9 +29,10 @@
 #define ASTERISK	19
 #define SLASH		20
 #define EXCLAMATION	21
-#define EOF		22
-#define WHITESPACE	23 // list, space, tab, newline
+#define EOFTOKEN	22
+#define OTHER		24
 
+/*
 const char letters[] = {
 	'a','A','b','B','c','C','d','D','e','E','f','F',
 	'g','G','h','H','i','I','j','J','k','K','l','L',
@@ -39,6 +40,8 @@ const char letters[] = {
 	's','S','t','T','u','U','v','V','w','W','x','X',
 	'y','Y','z','Z'
 }; 
+*/
+
 const char letters_exp[] = {'e','E'};
 const char letters_noexp[] = {
 	'a','A','b','B','c','C','d','D','f','F',
@@ -47,9 +50,10 @@ const char letters_noexp[] = {
 	's','S','t','T','u','U','v','V','w','W','x','X',
 	'y','Y','z','Z'
 }; 
+
 const char digits[] = {'0','1','2','3','4','5','6','7','8','9'};
 
-bool checkInArray(char c, char arr[]){
+bool inArr(char c, char arr[]){
 	size_t len = sizeof(arr)/sizeof(arr[0]);
 	for(int i = 0; i < len; i++){
 		if(c == arr[i]){
@@ -70,6 +74,40 @@ char charread = '\0';
 int delta[][] = {
 	
 };
+
+int charclass(char c){
+	if(inArr(c, digits)){
+		return DIGIT;
+	}
+	
+	if(inArr(c, letters_exp){
+		return LETTER_EXP;
+	}
+	if(inArr(c, letters_noexp){
+		return LETTER_NOEXP;
+	}
+	switch(c){
+		case '\n': return NEWLINE;
+		case  ' ': return SPACE;
+		case '\t': return TAB;
+		case  '_': return UNDERSCORE;
+		case  '"': return QUOTMARK;
+		case  ':': return COLON;
+		case  '>': return GT;
+		case  '<': return LT;
+		case  '=': return EQUAL;
+		case  ',': return COMMA;
+		case  '(': return LPAREN;
+		case  ')': return RPAREN;
+		case  '+': return PLUS;
+		case  '-': return MINUS;
+		case  '*': return ASTERISK;
+		case  '/': return SLASH;
+		case  '!': return EXCLAMATION;
+		case  EOF: return EOFTOKEN;
+		default  : return OTHER;	
+	}
+}
 
 int openfile(char *filename)
 {
