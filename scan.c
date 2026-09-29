@@ -10,27 +10,26 @@
 #define NEWLINE 	0 
 #define SPACE 		1
 #define TAB		2
-// #define LETTER		3 // list, all letters 
-#define LETTER_NOEXP	4 // list, all letters except e,E
-#define LETTER_EXP	5 // list, e,E
-#define DIGIT		6 // list, 0-9
-#define UNDERSCORE	7
-#define QUOTMARK	8
-#define COLON		9
-#define SEMICOLON	10
-#define GT		11
-#define LT		12
-#define EQUAL		13
-#define COMMA		14
-#define LPAREN		15
-#define RPAREN		16
-#define PLUS		17
-#define MINUS		18
-#define ASTERISK	19
-#define SLASH		20
-#define EXCLAMATION	21
-#define EOFTOKEN	22
-#define OTHER		24
+#define LETTER_NOEXP	3 // list, all letters except e,E
+#define LETTER_EXP	4 // list, e,E
+#define DIGIT		5 // list, 0-9
+#define UNDERSCORE	6
+#define QUOTMARK	7	
+#define COLON		8	
+#define SEMICOLON	9	
+#define GT		10
+#define LT		11
+#define EQUAL		12
+#define COMMA		13
+#define LPAREN		14
+#define RPAREN		15
+#define PLUS		16
+#define MINUS		17
+#define ASTERISK	18
+#define SLASH		19	
+#define EXCLAMATION	20	
+#define EOFTOKEN	21
+#define OTHER		22
 
 /*
 const char letters[] = {
@@ -71,8 +70,51 @@ int ptr = 1;
 bool pushback = false;
 char charread = '\0';
 
+// rows:     current state mod 100
+// columns: input character class
 int delta[][] = {
-	
+	/*	  0,   1,   2,   3,   4,   5,   6,   7,   8,   9,  10,  11,  12,  13,  14,  15,  16,  17,  18,  19,  20,  21,  22*/	
+	/*  0 */ {}
+	/*  1 */
+	/*  2 */
+	/*  3 */
+	/*  4 */
+	/*  5 */
+	/*  6 */
+	/*  7 */
+	/*  8 */
+	/*  9 */
+	/* 10 */
+	/* 11 */
+	/* 12 */
+	/* 13 */
+	/* 14 */
+	/* 15 */
+	/* 16 */
+	/* 17 */
+	/* 18 */
+	/* 19 */
+	/* 20 */
+	/* 21 */
+	/* 22 */
+	/* 23 */
+	/* 24 */
+	/* 25 */
+	/* 26 */
+	/* 27 */
+	/* 28 */
+	/* 29 */
+	/* 30 */
+	/* 31 */
+	/* 32 */
+	/* 33 */
+	/* 34 */
+	/* 35 */
+	/* 36 */
+	/* 37 */
+	/* 38 */
+	/* 39 */
+	/* 40 */
 };
 
 int charclass(char c){
