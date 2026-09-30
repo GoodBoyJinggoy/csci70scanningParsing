@@ -2,10 +2,12 @@
 #include<stdbool.h>
 #include<stdio.h>
 #include<string.h>
-#include<scan.h>
+#include"scan.h"
 
-#define MAXLINELEN = 1000;
-
+#define MAXLINELEN 2000
+#define LETTER_EXP_SIZE 2
+#define LETTER_NOEXP_SIZE 50
+#define DIGIT_SIZE 10
 // character classes, lists
 #define NEWLINE 	0 
 #define SPACE 		1
@@ -53,8 +55,7 @@ const char letters_noexp[] = {
 
 const char digits[] = {'0','1','2','3','4','5','6','7','8','9'};
 
-bool inArr(char c, char arr[]){
-	size_t len = sizeof(arr)/sizeof(arr[0]);
+bool inArr(char c, const char arr[], int len){
 	for(int i = 0; i < len; i++){
 		if(c == arr[i]){
 			return true;
@@ -74,34 +75,34 @@ char charread = '\0';
 // inputs:
 // rows:    current state mod 100
 // columns: character class
-int delta[][] = {
+int delta[][24] = {
 	/*	     0,   1,   2,   3,   4,   5,   6,   7,   8,   9,  10,  11,  12,  13,  14,  15,  16,  17,  18,  19,  20,  21,  22,  23*/	
-	/*  0 */ {   0,   0,   0,  33,  33,  34,  33,  16, 32,  105,  31,  30, 116, 107, 108, 109, 110, 111,  26,  27,   5, 322, 121, 322},
-	/*  1 */ {}, 
-	/*  2 */ {}, 
-	/*  3 */ {}, 
-	/*  4 */ {}, 
-	/*  5 */ {}, 
-	/*  6 */ {}, 
-	/*  7 */ {}, 
-	/*  8 */ {}, 
-	/*  9 */ {}, 
-	/* 10 */ {}, 
-	/* 11 */ {}, 
-	/* 12 */ {}, 
-	/* 13 */ {}, 
-	/* 14 */ {}, 
-	/* 15 */ {}, 
-	/* 16 */ {}, 
-	/* 17 */ {}, 
-	/* 18 */ {}, 
-	/* 19 */ {}, 
-	/* 20 */ {}, 
-	/* 21 */ {}, 
-	/* 22 */ {}, 
-	/* 23 */ {}, 
-	/* 24 */ {}, 
-	/* 25 */ {}, 
+	/*  0 */ {   0,   0,   0,  33,  33,  34,  33,  40, 32,  105,  31,  30, 116, 107, 108, 109, 110, 111,  26,  27,  29, 322, 121, 322},
+	/*  1 */ {   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0}, 
+	/*  2 */ {   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0}, 
+	/*  3 */ {   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0}, 
+	/*  4 */ {   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0}, 
+	/*  5 */ {   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0}, 
+	/*  6 */ {   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0}, 
+	/*  7 */ {   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0}, 
+	/*  8 */ {   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0}, 
+	/*  9 */ {   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0}, 
+	/* 10 */ {   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0}, 
+	/* 11 */ {   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0}, 
+	/* 12 */ {   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0}, 
+	/* 13 */ {   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0}, 
+	/* 14 */ {   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0}, 
+	/* 15 */ {   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0}, 
+	/* 16 */ {   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0}, 
+	/* 17 */ {   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0}, 
+	/* 18 */ {   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0}, 
+	/* 19 */ {   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0}, 
+	/* 20 */ {   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0}, 
+	/* 21 */ {   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0}, 
+	/* 22 */ {   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0}, 
+	/* 23 */ {   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0}, 
+	/* 24 */ {   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0}, 
+	/* 25 */ {   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0}, 
 	/* 26 */ { 212, 212, 212, 212, 212, 212, 212, 212, 212, 212, 212, 212, 212, 212, 212, 212, 212, 212, 114, 212, 212, 212, 212, 212}, 
 	/* 27 */ { 213, 213, 213, 213, 213, 213, 213, 213, 213, 213, 213, 213, 213, 213, 213, 213, 213, 213, 213,  28, 213, 213, 213, 213},
 	/* 28 */ {   0,  28,  28,  28,  28,  28,  28,  28,  28,  28,  28,  28,  28,  28,  28,  28,  28,  28,  28,  28,  28,  28,  28,  28},
@@ -120,23 +121,24 @@ int delta[][] = {
 };
 
 int charclass(char c){
-	if(inArr(c, digits)){
+	if(inArr(c, digits, DIGIT_SIZE)){
 		return DIGIT;
 	}
-	
-	if(inArr(c, letters_exp){
+	if(inArr(c, letters_exp, LETTER_EXP_SIZE)){
 		return LETTER_EXP;
 	}
-	if(inArr(c, letters_noexp){
+	if(inArr(c, letters_noexp, LETTER_NOEXP_SIZE)){
 		return LETTER_NOEXP;
 	}
 	switch(c){
+		case '\r':
 		case '\n': return NEWLINE;
 		case  ' ': return SPACE;
 		case '\t': return TAB;
 		case  '_': return UNDERSCORE;
-		case  '"': return QUOTMARK;
+		case '\"': return QUOTMARK;
 		case  ':': return COLON;
+		case  ';': return SEMICOLON;
 		case  '>': return GT;
 		case  '<': return LT;
 		case  '=': return EQUAL;
@@ -148,6 +150,7 @@ int charclass(char c){
 		case  '*': return ASTERISK;
 		case  '/': return SLASH;
 		case  '!': return EXCLAMATION;
+		case  '.': return PERIOD;
 		case  EOF: return EOFTOKEN;
 		default  : return OTHER;	
 	}
@@ -184,6 +187,48 @@ char mygetchar()
 	return charread;
 }
 
+const char *errormessage(int errnum)
+{
+	switch(errnum)
+	{
+		case 322: return "Illegal character/character sequence";
+		case 323: return "Illegal character/character sequence";
+		case 324: return "Unterminated string";
+		case 325: return "Invalid number format"; 
+		default:  return "Unspecified error";
+	}
+}
+
+struct token checkSpecialIdent(struct token t)
+{
+	char *lexeme = t.lexeme;
+	if(strcmp(lexeme,"PRINT\0") == 0){
+		t.id = TokenPRINT;
+	}
+	else if(strcmp(lexeme, "IF\0") == 0){
+		t.id = TokenIF;
+	}
+	else if(strcmp(lexeme, "ELSE\0") == 0){
+		t.id = TokenELSE;
+	}
+	else if(strcmp(lexeme, "ENDIF\0") == 0){
+		t.id = TokenENDIF;
+	}
+	else if(strcmp(lexeme, "SQRT\0") == 0){
+		t.id = TokenSQRT;
+	}
+	else if(strcmp(lexeme, "AND\0") == 0){
+		t.id = TokenAND;
+	}
+	else if(strcmp(lexeme, "OR\0") == 0){
+		t.id = TokenOR;
+	}
+	else if(strcmp(lexeme, "NOT\0") == 0){
+		t.id = TokenNOT;
+	}
+	return t;
+}
+
 struct token gettoken()
 {
 	int state = 0;
@@ -196,7 +241,7 @@ struct token gettoken()
 		placeholder[0] = c;
 		int ch = charclass(c);
 		state = delta[state][ch];
-		if(state == 0){
+		if(state == 0 || state == 28){
 			strcpy(temp.lexeme, "");
 		}
 		else if(state/100 == 0){
@@ -204,15 +249,20 @@ struct token gettoken()
 		}
 	}
 	if(state/100 == 3){ 
-		printf("Error lol");
+		printf("Lexical Error: %s (line #%i)\n", errormessage(state), linenum);
 		temp.id = 0; // error id
 		strcpy(temp.lexeme,"");
 	}
 	else if(state/100 == 2){
 		temp.id = state % 100;
 		pushback = true;
+		// special identifiers
+		if(state == 201){
+			temp = checkSpecialIdent(temp);
+		}
 	}
 	else if(state/100 == 1){
+		strcat(temp.lexeme, placeholder);
 		temp.id = state % 100;
 		pushback = false;
 	}

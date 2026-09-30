@@ -19,8 +19,16 @@ const char *tokennames[] = {
 	"LessThan	",
 	"Equal		",
 	"GreaterThan	",
-	"LTEqual	",
-	"GTEqual	",
+	"LTEqual\t	",
+	"GTEqual\t	",
 	"NotEqual	",
-	"EndOfFile	"
+	"EndOfFile	",
+	"Print		",
+	"If		",
+	"Else		",
+	"Endif		",
+	"Sqrt		",
+	"And		",
+	"Or		",
+	"Not		"
 };
