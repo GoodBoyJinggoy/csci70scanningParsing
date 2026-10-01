@@ -4,29 +4,31 @@
 #include<stdlib.h>
 #include"scan.h"
 
-#define MAXTOKENS 2000
 int main(int argc, char** argv){
-	struct node tempStorage[MAXTOKENS];
-	int i = 0;
+	struct node* tempStorage = (struct node*) malloc(2 * sizeof(struct node));
+	int i = 1;
 	char filename[50];
 	if(argc >= 2){
 		strcpy(filename,argv[1]);
 	}
 	openfile(filename);
 	struct token t = gettoken();
-	struct node head;
-	head.value = t;
-	struct node *curr = &head;
+	// head
+	tempStorage[0].value = t;
+	struct node *curr = &tempStorage[0];
 	while(t.id != TokenEOF){
 		t = gettoken();
 		tempStorage[i].value = t;
 		curr -> next = &tempStorage[i];
 		curr = &tempStorage[i];
 		i++;
+		tempStorage = (struct node*) realloc(tempStorage,(i + 1) * sizeof(struct node));
 	}
-	struct node *iter = &head;
+	struct node *iter = &tempStorage[0];
 	while(iter -> next != NULL){
-		printf("id: %d, lexeme: %s\n", iter -> value.id, iter -> value.lexeme);
+		printf("%s, lexeme: %s\n", tokennames[iter -> value.id], iter -> value.lexeme);
 		iter = iter -> next;
 	}
+	free(tempStorage);
+	return 0;
 }
