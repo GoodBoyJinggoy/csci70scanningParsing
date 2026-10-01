@@ -4,6 +4,11 @@ struct token
 	char lexeme[50];
 };
 
+struct node{
+	struct token value;
+	struct node *next;
+};
+
 extern const char *tokennames[];
 
 #define TokenIdentifier 1

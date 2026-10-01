@@ -1,4 +1,10 @@
-all: scanit.exe
+all: scanit.exe parser.exe
+
+parser.o: parser.c scan.h token.h
+	gcc -c parser.c
+
+parser.exe: parser.o token.o scan.o
+	gcc -o parser.exe parser.o token.o scan.o
 
 token.o: token.c token.h
 	gcc -c token.c
