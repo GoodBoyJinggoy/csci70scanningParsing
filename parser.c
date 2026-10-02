@@ -256,7 +256,7 @@ int main(int argc, char** argv){
 	if(argc >= 2){
 		strcpy(filename,argv[1]);
 	}
-	openfile(filename);
+	openfile(filename,"dummy");
 	struct token t = gettoken(false);
 	// head
 	tempStorage[0].value = t;

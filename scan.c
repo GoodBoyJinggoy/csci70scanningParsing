@@ -3,6 +3,7 @@
 #include<stdio.h>
 #include<string.h>
 #include"scan.h"
+#include"io.h"
 
 #define MAXLINELEN 2000
 #define LETTER_EXP_SIZE 2
@@ -28,8 +29,8 @@
 #define PLUS		16
 #define MINUS		17
 #define ASTERISK	18
-#define SLASH		19	
-#define EXCLAMATION	20	
+#define SLASH		19
+#define EXCLAMATION	20
 #define PERIOD		21
 #define EOFTOKEN	22
 #define OTHER		23
@@ -64,8 +65,9 @@ bool inArr(char c, const char arr[], int len){
 	return false;
 }
 
-FILE *input;
 static int linenum = 1;
+FILE *input;
+FILE *output;
 char line[MAXLINELEN];
 int len = 0;
 int ptr = 1;
@@ -156,15 +158,25 @@ int charclass(char c){
 	}
 }
 
-int openfile(char *filename)
+void printtoken(struct token t){
+	fprintf(output, "%s %s\n", tokennames[t.id], t.lexeme);
+}
+
+int openfile(char *inputFilename, char *outputFilename)
 {
-	input = fopen(filename, "r");
+	input = fopen(inputFilename, "r");
 	if(input == NULL)
 	{
 		printf("File not found.");
 		exit(1);
 	}
+	output = fopen(outputFilename, "w");
 	return 0;
+}
+
+void closefiles(){
+	fclose(input);
+	fclose(output);
 }
 
 int getlinenumber(){
@@ -250,7 +262,7 @@ struct token gettoken(bool isScanner)
 	}
 	if(state/100 == 3){ 
 		if(isScanner){
-			printf("Lexical Error: %s (line #%i)\n", errormessage(state), linenum);
+			fprintf(output, "Lexical Error: %s (line #%i)\n", errormessage(state), linenum);
 		}
 		temp.id = 0; // error id
 		strcpy(temp.lexeme,"");

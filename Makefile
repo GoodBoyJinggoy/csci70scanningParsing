@@ -1,6 +1,6 @@
 all: scanner.exe parser.exe
 
-parser.o: parser.c scan.h token.h parser.h
+parser.o: parser.c scan.h token.h parser.h io.h
 	gcc -c parser.c
 
 parser.exe: parser.o token.o scan.o
@@ -9,10 +9,10 @@ parser.exe: parser.o token.o scan.o
 token.o: token.c token.h
 	gcc -c token.c
 
-scan.o: scan.c scan.h token.h
+scan.o: scan.c scan.h token.h io.h
 	gcc -c scan.c
 
-scanner.o: scanner.c scan.h token.h
+scanner.o: scanner.c scan.h token.h io.h
 	gcc -c scanner.c
 
 scanner.exe: scanner.o scan.o token.o
