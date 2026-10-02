@@ -229,7 +229,7 @@ struct token checkSpecialIdent(struct token t)
 	return t;
 }
 
-struct token gettoken()
+struct token gettoken(bool isScanner)
 {
 	int state = 0;
 	struct token temp;
@@ -249,7 +249,9 @@ struct token gettoken()
 		}
 	}
 	if(state/100 == 3){ 
-		printf("Lexical Error: %s (line #%i)\n", errormessage(state), linenum);
+		if(isScanner){
+			printf("Lexical Error: %s (line #%i)\n", errormessage(state), linenum);
+		}
 		temp.id = 0; // error id
 		strcpy(temp.lexeme,"");
 	}
