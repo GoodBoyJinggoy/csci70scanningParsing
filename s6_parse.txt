@@ -1,4 +1,0 @@
-Assignment Statement Recognized
-Assignment Statement Recognized
-If Statement Begins
-Parse Error: Missing relational operator. (line #4)

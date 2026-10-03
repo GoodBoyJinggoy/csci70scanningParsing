@@ -5,12 +5,13 @@
 #include<stdbool.h>
 #include<stdlib.h>
 #include"scanparse.h"
-
-struct node* tempStorage; 
+// Maximum number of tokens that can be parsed
+#define MAXTOKENS 5000
 struct node* inp;
 
 int main()
 {
+	// regex for checking for text files
 	regex_t regexp;
 	int val = regcomp(&regexp, "[a-zA-Z0-9_-].txt$", 0); 
 	DIR *direc;
@@ -19,9 +20,11 @@ int main()
 
 	while(nextfile != NULL){
 		val = regexec(&regexp, nextfile -> d_name, 0, NULL, 0);
-		if(val == 0){
-			char *newFilename = malloc((strlen(nextfile -> d_name) + 11) * sizeof(char));
-			char *oldFilename = malloc(strlen(nextfile -> d_name) * sizeof(char));
+		if(val == 0){ // regex match
+			// tempStorage is an array that contains the nodes of a linked list of tokens
+			struct node tempStorage[MAXTOKENS]; 
+			char *newFilename = (char *) calloc((strlen(nextfile -> d_name) + 11), sizeof(char));
+			char *oldFilename = (char *) calloc(strlen(nextfile -> d_name), sizeof(char));
 			oldFilename = strcpy(oldFilename, nextfile -> d_name);
 			printf("Parsing %s\n", oldFilename);
 			int i = 0;
@@ -32,11 +35,12 @@ int main()
 			newFilename[i] = '\0';
 			newFilename = strcat(newFilename, "_parse.txt");
 			openfile(oldFilename, newFilename);
-			tempStorage = (struct node*) malloc(2 * sizeof(struct node));
 			i = 1;
 			struct token t = gettoken(false);
-			// head
+			// head of the linked list
 			tempStorage[0].value = t;
+			// inserting new nodes in this linked list involves creating a new node containing the next 
+			// token, then adding a pointer from the "tail" to the new node
 			struct node *curr = &tempStorage[0];
 			while(t.id != TokenEOF){
 				t = gettoken(false);
@@ -45,39 +49,30 @@ int main()
 				tempStorage[i].linenum = getlinenumber();
 				curr = &tempStorage[i];
 				i++;
-				tempStorage = (struct node*) realloc(tempStorage,(i + 1) * sizeof(struct node));
 			}
 			
-			/*struct token t = gettoken(true);
-			while(t.id != TokenEOF){
-				printtoken(t);
-				t = gettoken(true);
-			}
-			*/
+			// calling the parser; start with a pointer to the head
 			inp = &tempStorage[0];
 			prg(&inp);
+			// reset the line number variable for next file to be parsed
 			resetlinenumber();
 			if(isSuccessful() == false){
 				nextfile = readdir(direc);
-				printf("invalid %s\n", oldFilename);
 				closefiles();
-				free(tempStorage);
 				free(oldFilename);
 				free(newFilename);
 				continue;
 			}
 			else{
-				printf("valid %s\n", oldFilename);
 				confirmsuccess(oldFilename);
 				closefiles();
-				free(tempStorage);
 				free(oldFilename);
 				free(newFilename);
 			}
 
 		}
+		// read next file
 		nextfile = readdir(direc);
 	}
-	printf("worked\n");
 	return 0;
 }

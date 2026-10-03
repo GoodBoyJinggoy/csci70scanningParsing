@@ -8,13 +8,13 @@
 #define LETTER_EXP_SIZE 2
 #define LETTER_NOEXP_SIZE 50
 #define DIGIT_SIZE 10
-// character classes, lists
+// character classes
 #define NEWLINE 	0 
 #define SPACE 		1
 #define TAB		2
-#define LETTER_NOEXP	3 // list, all letters except e,E
-#define LETTER_EXP	4 // list, e,E
-#define DIGIT		5 // list, 0-9
+#define LETTER_NOEXP	3 // all letters except e,E
+#define LETTER_EXP	4 // e,E
+#define DIGIT		5 // 0-9
 #define UNDERSCORE	6
 #define QUOTMARK	7	
 #define COLON		8	
@@ -33,16 +33,6 @@
 #define PERIOD		21
 #define EOFTOKEN	22
 #define OTHER		23
-
-/*
-const char letters[] = {
-	'a','A','b','B','c','C','d','D','e','E','f','F',
-	'g','G','h','H','i','I','j','J','k','K','l','L',
-	'm','M','n','N','o','O','p','P','q','Q','r','R',
-	's','S','t','T','u','U','v','V','w','W','x','X',
-	'y','Y','z','Z'
-}; 
-*/
 
 const char letters_exp[] = {'e','E'};
 const char letters_noexp[] = {
@@ -73,9 +63,11 @@ int ptr = 1;
 bool pushback = false;
 char charread = '\0';
 
-// inputs:
+// scanner logic
+
+// state table
 // rows:    current state mod 100
-// columns: character class
+// columns: character class (input)
 int delta[][24] = {
 	/*	     0,   1,   2,   3,   4,   5,   6,   7,   8,   9,  10,  11,  12,  13,  14,  15,  16,  17,  18,  19,  20,  21,  22,  23*/	
 	/*  0 */ {   0,   0,   0,  33,  33,  34,  33,  40, 32,  105,  31,  30, 116, 107, 108, 109, 110, 111,  26,  27,  29, 322, 121, 322},
@@ -121,6 +113,7 @@ int delta[][24] = {
 	/* 40 */ { 324,  40,  40,  40,  40,  40,  40, 103,  40,  40,  40,  40,  40,  40,  40,  40,  40,  40,  40,  40,  40,  40,  40,  40},
 };
 
+// categorize character
 int charclass(char c){
 	if(inArr(c, digits, DIGIT_SIZE)){
 		return DIGIT;
@@ -157,10 +150,12 @@ int charclass(char c){
 	}
 }
 
+// print token ID and lexeme to output file
 void printtoken(struct token t){
 	fprintf(output, "%s %s\n", tokennames[t.id], t.lexeme);
 }
 
+// open input and output files
 int openfile(char *inputFilename, char *outputFilename)
 {
 	input = fopen(inputFilename, "r");
@@ -173,6 +168,7 @@ int openfile(char *inputFilename, char *outputFilename)
 	return 0;
 }
 
+// close input and output files
 void closefiles(){
 	fclose(input);
 	fclose(output);
@@ -285,11 +281,15 @@ struct token gettoken(bool isScanner)
 	return temp;
 }
 
+// parser logic
+
+// boolean for checking error conditions in the parser
 bool parseSuccess;
 
 bool isSuccessful(){
 	return parseSuccess;
 }
+
 void confirmsuccess(char *filename){
 	fprintf(output, "%s is a valid SimpCalc program\n", filename);
 }
@@ -309,15 +309,14 @@ void match(struct node **inpPtr, int expected){
 		consume(inpPtr);
 	}
 	else{
-		char *expectedTokenName;
-		expectedTokenName = (char *) calloc(20, sizeof(char));
+		char expectedTokenName[30];
 		strcpy(expectedTokenName,tokennames[expected]);
-		char *msg = " expected";
+		char msg[] = " expected";
 		parseerror((*inpPtr) -> linenum, strcat(expectedTokenName,msg));
-		free(expectedTokenName);
 	}
 }
 
+// start of recursive descent parser
 void prg(struct node **inpPtr){
 	parseSuccess = true;
 	blk(inpPtr);

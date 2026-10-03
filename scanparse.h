@@ -1,6 +1,8 @@
 #include "token.h"
 #include <stdbool.h>
 
+// linked list node containing tokens, for use in parser
+// line number included for printing errors in parser
 struct node{
 	struct token value;
 	int linenum;
