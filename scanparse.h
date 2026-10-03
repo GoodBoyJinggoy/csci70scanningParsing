@@ -1,9 +1,21 @@
+#include "token.h"
+#include <stdbool.h>
+
 struct node{
 	struct token value;
+	int linenum;
 	struct node *next;
 };
 
-void parseerror(char *message);
+bool isSuccessful();
+void confirmsuccess(char *filename);
+int openfile(char *inputFilename, char *outputFilename);
+void closefiles();
+void printtoken(struct token t);
+struct token gettoken(bool isScanner);
+int getlinenumber();
+void resetlinenumber();
+void parseerror(int linenum, char *message);
 void consume(struct node **inpPtr);
 void match(struct node **inpPtr, int expected);
 void prg(struct node **inpPtr);

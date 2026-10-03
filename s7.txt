@@ -1,0 +1,2 @@
+PRINT("HELLO WORLD")
+a := sqrt(32);

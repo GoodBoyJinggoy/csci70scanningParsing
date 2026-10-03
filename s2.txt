@@ -22,7 +22,7 @@ how about  "this
 IF ELSE ENDIF SQRT PRINT AND OR NOT
 if else endif sqrt print and or not
 ** * * ++ -/** < => >= < =!=!ouch
-:;=:=;
+
 _ _x x_
 5+5+5
 a**b**c

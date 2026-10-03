@@ -2,8 +2,7 @@
 #include<stdbool.h>
 #include<stdio.h>
 #include<string.h>
-#include"scan.h"
-#include"io.h"
+#include"scanparse.h"
 
 #define MAXLINELEN 2000
 #define LETTER_EXP_SIZE 2
@@ -179,6 +178,9 @@ void closefiles(){
 	fclose(output);
 }
 
+void resetlinenumber(){
+	linenum = 1;
+}
 int getlinenumber(){
 	return linenum;
 }
@@ -281,4 +283,280 @@ struct token gettoken(bool isScanner)
 		pushback = false;
 	}
 	return temp;
+}
+
+bool parseSuccess;
+
+bool isSuccessful(){
+	return parseSuccess;
+}
+void confirmsuccess(char *filename){
+	fprintf(output, "%s is a valid SimpCalc program\n", filename);
+}
+
+void parseerror(int linenum, char *message){
+	fprintf(output,"Parse Error: %s. (line #%d)\n", message, linenum);
+	parseSuccess = false;
+}
+
+void consume(struct node **inpPtr){
+	*inpPtr = (*inpPtr) -> next; 
+}
+
+void match(struct node **inpPtr, int expected){
+	if(parseSuccess == false) { return; }
+	if(((*inpPtr) -> value).id == expected){
+		consume(inpPtr);
+	}
+	else{
+		char *expectedTokenName;
+		expectedTokenName = (char *) calloc(20, sizeof(char));
+		strcpy(expectedTokenName,tokennames[expected]);
+		char *msg = " expected";
+		parseerror((*inpPtr) -> linenum, strcat(expectedTokenName,msg));
+		free(expectedTokenName);
+	}
+}
+
+void prg(struct node **inpPtr){
+	parseSuccess = true;
+	blk(inpPtr);
+	match(inpPtr, TokenEOF);
+}
+
+void blk(struct node **inpPtr){
+	if(parseSuccess == false) { return; }
+	switch( ((*inpPtr) -> value).id ){
+		case TokenIdentifier:
+		case TokenPRINT:
+		case TokenIF:
+			stm(inpPtr);
+			blk(inpPtr);
+			break;
+		default:
+			break;
+	}
+}
+
+void stm(struct node **inpPtr){
+	if(parseSuccess == false) { return; }
+	switch( ((*inpPtr) -> value).id ){
+		case TokenIdentifier:
+			match(inpPtr, TokenIdentifier);
+			match(inpPtr, TokenAssign);
+			exp(inpPtr);
+			match(inpPtr, TokenSemicolon);
+			if(parseSuccess == true){ 
+				fprintf(output, "Assignment Statement Recognized\n");
+			}
+			break;
+		case TokenPRINT:
+			match(inpPtr, TokenPRINT);
+			match(inpPtr, TokenLeftParen);
+			arg(inpPtr);
+			argfollow(inpPtr);
+			match(inpPtr, TokenRightParen);
+			match(inpPtr, TokenSemicolon);
+			if(parseSuccess == true){
+				fprintf(output, "Print Statement Recognized\n");
+			}
+			break;
+		case TokenIF:
+			match(inpPtr, TokenIF);
+			if(parseSuccess == true){
+				fprintf(output, "If Statement Begins\n");
+			};
+			cnd(inpPtr);
+			match(inpPtr, TokenColon);
+			blk(inpPtr);
+			iffollow(inpPtr);
+			if(parseSuccess == true){
+				fprintf(output, "If Statement Ends\n");
+			}
+			break;
+		default: 
+			parseerror((*inpPtr) -> linenum, "Invalid Statement");
+			break;
+	}
+}
+
+void argfollow(struct node **inpPtr){
+	if(parseSuccess == false) { return; }
+	switch( ((*inpPtr) -> value).id ){
+		case TokenComma:
+			match(inpPtr, TokenComma);
+			arg(inpPtr);
+			argfollow(inpPtr);
+			break;
+		default:
+			break;
+	}
+}
+
+void arg(struct node **inpPtr){
+	if(parseSuccess == false) { return; }
+	switch( ((*inpPtr) -> value).id ){
+		case TokenString:
+			match(inpPtr, TokenString);
+			break;
+		default:
+			exp(inpPtr);
+			break;
+	}
+}
+
+void iffollow(struct node **inpPtr){
+	if(parseSuccess == false) { return; }
+	switch( ((*inpPtr) -> value).id ){
+		case TokenENDIF:
+			match(inpPtr, TokenENDIF);
+			match(inpPtr, TokenSemicolon);
+			break;
+		case TokenELSE:
+			match(inpPtr, TokenELSE);
+			blk(inpPtr);
+			match(inpPtr, TokenENDIF);
+			match(inpPtr, TokenSemicolon);
+			break;
+		default:
+			parseerror((*inpPtr) -> linenum, "Incomplete if Statement");
+			break;
+	}
+}
+
+void exp(struct node **inpPtr){
+	if(parseSuccess == false) { return; }
+	trm(inpPtr);
+	trmfollow(inpPtr);
+}
+
+void trmfollow(struct node **inpPtr){
+	if(parseSuccess == false) { return; }
+	switch( ((*inpPtr) -> value).id ){
+		case TokenPlus:
+			match(inpPtr, TokenPlus);
+			trm(inpPtr);
+			trmfollow(inpPtr);
+			break;
+		case TokenMinus:
+			match(inpPtr, TokenMinus);
+			trm(inpPtr);
+			trmfollow(inpPtr);
+			break;
+		default:
+			break;
+	}
+}
+
+void trm(struct node **inpPtr){
+	if(parseSuccess == false) { return; }
+	fac(inpPtr);
+	facfollow(inpPtr);
+}
+
+void facfollow(struct node **inpPtr){
+	if(parseSuccess == false) { return; }
+	switch( ((*inpPtr) -> value).id ){
+		case TokenMultiply:
+			match(inpPtr, TokenMultiply);
+			fac(inpPtr);
+			facfollow(inpPtr);
+			break;
+		case TokenDivide:
+			match(inpPtr, TokenDivide);
+			fac(inpPtr);
+			facfollow(inpPtr);
+			break;
+		default:
+			break;
+	}
+}
+
+void fac(struct node **inpPtr){
+	if(parseSuccess == false) { return; }
+	lit(inpPtr);
+	litfollow(inpPtr);
+}
+
+void litfollow(struct node **inpPtr){
+	if(parseSuccess == false) { return; }
+	switch( ((*inpPtr) -> value).id ){
+		case TokenRaise:
+			match(inpPtr, TokenRaise);
+			lit(inpPtr);
+			litfollow(inpPtr);
+			break;
+		default:
+			break;
+	}
+}
+
+void lit(struct node **inpPtr){
+	if(parseSuccess == false) { return; }
+	switch( ((*inpPtr) -> value).id ){
+		case TokenMinus:
+			match(inpPtr, TokenMinus);
+			val(inpPtr);
+			break;
+		default:
+			val(inpPtr);
+			break;
+	}
+}
+
+void val(struct node **inpPtr){
+	if(parseSuccess == false) { return; }
+	switch( ((*inpPtr) -> value).id ){
+		case TokenIdentifier:
+			match(inpPtr, TokenIdentifier);
+			break;
+		case TokenNumber:
+			match(inpPtr, TokenNumber);
+			break;
+		case TokenSQRT:
+			match(inpPtr, TokenSQRT);
+			match(inpPtr, TokenLeftParen);
+			exp(inpPtr);
+			match(inpPtr, TokenRightParen);
+			break;
+		default:
+			match(inpPtr, TokenLeftParen);
+			exp(inpPtr);
+			match(inpPtr, TokenRightParen);
+			break;
+	}
+}
+
+void cnd(struct node **inpPtr){
+	if(parseSuccess == false) { return; }
+	exp(inpPtr);
+	rel(inpPtr);
+	exp(inpPtr);
+}
+
+void rel(struct node **inpPtr){
+	if(parseSuccess == false) { return; }
+	switch( ((*inpPtr) -> value).id ){
+		case TokenLT:
+			match(inpPtr, TokenLT);
+			break;
+		case TokenEqual:
+			match(inpPtr, TokenEqual);
+			break;
+		case TokenGT:
+			match(inpPtr, TokenGT);
+			break;
+		case TokenGTE:
+			match(inpPtr, TokenGTE);
+			break;
+		case TokenNotEqual:
+			match(inpPtr, TokenNotEqual);
+			break;
+		case TokenLTE:
+			match(inpPtr, TokenLTE);
+			break;
+		default:
+			parseerror((*inpPtr) -> linenum, "Missing relational operator");
+			break;
+	}
 }
