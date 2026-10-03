@@ -26,7 +26,6 @@ int main()
 			char *newFilename = (char *) calloc((strlen(nextfile -> d_name) + 11), sizeof(char));
 			char *oldFilename = (char *) calloc(strlen(nextfile -> d_name), sizeof(char));
 			oldFilename = strcpy(oldFilename, nextfile -> d_name);
-			printf("Parsing %s\n", oldFilename);
 			int i = 0;
 			while(oldFilename[i] != '.'){
 				newFilename[i] = oldFilename[i];

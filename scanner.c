@@ -35,6 +35,7 @@ int main()
 				t = gettoken(true);
 			}
 			closefiles();
+			resetlinenumber();
 			free(oldFilename);
 			free(newFilename);
 		}
